@@ -23,46 +23,58 @@ def draw_platforms():
         pygame.draw.rect(screen, (150,10,10), (platforms[i][0] + offset, platforms[i][1], 100, 30))
 
 def move_player():
-    global touchGround
-    global offset
+    global touchGround, offset
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_a]:
-        if offset > 260 and player[0] > 0:
-            player[2] = -5
-        elif player[0]>400 and offset < -1500:
-            player[2] = -5
-        elif player[0] > 0:
-            offset += 5
-            player[2] = 0
-        else:
-            player[2] = 0
+ 
+    if not touchGround:
+        player[3] += 1 
+    else:
+        player[3] = 0  
 
+  
+    if player[3] > 10:
+        player[3] = 10
 
-    elif keys[pygame.K_d]:
-        if offset < -1500 and player[0] < 750:
-            player[2] = 5
-        elif offset > 260 and player[0] < 400:
-            player[2] = 5
-        elif player[0] < 750:
-            offset -= 5
-            player[2] = 0
-        else:
-            player[2] = 0
-
-
-    if touchGround == False:
-        player[3] += 1
-
-    player[0] += player[2]
-    player[1] += player[3]  
 
     if player[1] >= 450:
-        player[1] = 450 
+        player[1] = 450
         touchGround = True
-    if touchGround == True and keys[pygame.K_w]:
-        player[3] = -15 
-        touchGround = False 
+
+ 
+    on_platform = False
+    for i in range(len(platforms)):
+        platform_x = platforms[i][0] + offset
+        platform_y = platforms[i][1]
+        if player[0] + 50 > platform_x and player[0] < platform_x + 100:
+            if player[1] + 50 >= platform_y and player[1] + 50 <= platform_y + 30:
+                on_platform = True
+                player[1] = platform_y - 50
+                player[3] = 0 
+
+    touchGround = on_platform or player[1] >= 450
+
+
+    if keys[pygame.K_a]:
+        if player[0] > 0:
+            player[0] -= 5
+        elif offset < 0:
+            offset += 5
+
+    elif keys[pygame.K_d]:  # Move right
+        if player[0] < 750:
+            player[0] += 5
+        elif offset > -1500:
+            offset -= 5
+
+    if touchGround and keys[pygame.K_w]:
+        player[3] = -15
+        touchGround = False
+
+
+    player[1] += player[3]
+
+ 
 
      
 
